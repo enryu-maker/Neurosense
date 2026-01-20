@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSoundRecorder } from 'react-native-nitro-sound';
+import RNFS from 'react-native-fs';
 import { permissionService } from '../services/permission.service';
 import { assessmentApi } from '../api/assessment.mock';
 import { useNavigation } from '@react-navigation/native';
@@ -12,31 +14,45 @@ export const useVoice = () => {
     const [audioUri, setAudioUri] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+
+    const { startRecorder: startNitroRecorder, stopRecorder: stopNitroRecorder } = useSoundRecorder({
+        onRecord: (data) => {
+            if (data.recordSecs) {
+                setDuration(Math.floor(data.recordSecs));
+            } else if (data.currentPosition) {
+                setDuration(Math.floor(data.currentPosition / 1000));
+            }
+        }
+    });
 
     const startRecording = async () => {
         const hasPermission = await permissionService.requestMicrophonePermission();
         if (!hasPermission) {
-            // Handle denied
             return;
         }
 
-        setIsRecording(true);
-        setAudioUri(null);
-        setDuration(0);
-
-        timerRef.current = setInterval(() => {
-            setDuration(prev => prev + 1);
-        }, 1000);
+        try {
+            const fileName = `recording-${Date.now()}.wav`;
+            const filePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+            // Nitro Sound startRecorder takes uri? as first argument
+            await startNitroRecorder(filePath);
+            setIsRecording(true);
+            setAudioUri(null);
+            setDuration(0);
+        } catch (error) {
+            console.error('Failed to start recording', error);
+        }
     };
 
-    const stopRecording = () => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
+    const stopRecording = async () => {
+        try {
+            const result = await stopNitroRecorder();
+            setIsRecording(false);
+            setAudioUri(result);
+        } catch (error) {
+            console.error('Failed to stop recording', error);
         }
-        setIsRecording(false);
-        // In real app, this path comes from the audio library
-        setAudioUri('mock-recording.mp3');
     };
 
     const reRecord = () => {

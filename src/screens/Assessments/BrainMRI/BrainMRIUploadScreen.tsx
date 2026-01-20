@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Alert, Platform } from 'react-native';
+import { Camera, Image as ImageIcon, Upload, CloudUpload } from 'lucide-react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DashboardStackParamList } from '../../../types/navigation.types';
@@ -18,9 +20,27 @@ export const BrainMRIUploadScreen = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handlePickImage = async () => {
-        // Mock image picker
-        await mockDelay(500);
-        setImageUri('https://via.placeholder.com/300'); // Mock image
+        try {
+            const result = await launchImageLibrary({
+                mediaType: 'photo',
+                selectionLimit: 1,
+            });
+
+            if (result.didCancel) {
+                return;
+            }
+
+            if (result.errorCode) {
+                Alert.alert('Error', result.errorMessage || 'Failed to pick image');
+                return;
+            }
+
+            if (result.assets && result.assets[0]?.uri) {
+                setImageUri(result.assets[0].uri);
+            }
+        } catch (err) {
+            Alert.alert('Error', 'An unexpected error occurred');
+        }
     };
 
     const handleSubmit = async () => {
@@ -57,8 +77,9 @@ export const BrainMRIUploadScreen = () => {
                 <Button
                     title={imageUri ? "Change Image" : "Select Image"}
                     onPress={handlePickImage}
-                    variant="outline"
+                    variant={imageUri ? "outline" : "secondary"}
                     disabled={isSubmitting}
+                    icon={imageUri ? <Camera size={20} color={colors.primary} /> : <ImageIcon size={20} color={colors.white} />}
                 />
                 <View style={styles.spacer} />
                 <Button
@@ -66,6 +87,8 @@ export const BrainMRIUploadScreen = () => {
                     onPress={handleSubmit}
                     disabled={!imageUri}
                     loading={isSubmitting}
+                    variant="primary"
+                    icon={<CloudUpload size={20} color={colors.white} />}
                 />
             </View>
         </View>

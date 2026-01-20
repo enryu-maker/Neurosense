@@ -5,11 +5,16 @@ import { AuthNavigator } from './AuthNavigator';
 import { AppNavigator } from './AppNavigator';
 import { RootStackParamList } from './navigation.types';
 import { useAuth } from '../hooks/useAuth';
+import { SplashScreen } from '../screens/Splash/SplashScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isInitialized } = useAuth();
+
+    if (!isInitialized) {
+        return <SplashScreen />;
+    }
 
     return (
         <NavigationContainer>

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 import { DisclaimerBox } from '../../components/DisclaimerBox';
 import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
-import { Header } from '../../components/Header';
+import { User, Lock, Activity } from 'lucide-react-native';
 
 export const LoginScreen = () => {
     const { login, isLoading } = useAuth();
@@ -28,43 +29,58 @@ export const LoginScreen = () => {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.container}>
-                <Header title="Neurosense" subtitle="Cognitive Assessment Platform" />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ flex: 1 }}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                <View style={styles.form}>
-                    <Text style={styles.label}>Username</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                        placeholder="Enter username"
-                        placeholderTextColor={colors.textSecondary}
-                    />
-
-                    <Text style={styles.label}>Password</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholder="Enter password"
-                        placeholderTextColor={colors.textSecondary}
-                    />
-
-                    <View style={styles.buttonContainer}>
-                        <Button
-                            title="Continue"
-                            onPress={handleLogin}
-                            loading={isLoading}
-                        />
+                    {/* Header Logo Area */}
+                    <View style={styles.header}>
+                        <View style={styles.logoCircle}>
+                            <Activity size={48} color={colors.primary} />
+                        </View>
+                        <Text style={styles.appName}>Neurosense</Text>
+                        <Text style={styles.tagline}>Cognitive Assessment Platform</Text>
                     </View>
-                </View>
 
-                <View style={styles.footer}>
-                    <DisclaimerBox />
-                </View>
-            </View>
+                    {/* Form Area */}
+                    <View style={styles.form}>
+                        <Input
+                            label="Username"
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize="none"
+                            placeholder="Enter your username"
+                            icon={<User size={20} color={colors.textSecondary} />}
+                        />
+
+                        <Input
+                            label="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                            placeholder="Enter your password"
+                            icon={<Lock size={20} color={colors.textSecondary} />}
+                        />
+
+                        <View style={styles.buttonContainer}>
+                            <Button
+                                title="Sign In"
+                                onPress={handleLogin}
+                                loading={isLoading}
+                                icon={<Lock size={18} color={colors.white} />}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.footer}>
+                        <DisclaimerBox />
+                        <Text style={styles.version}>v0.0.1 Beta</Text>
+                    </View>
+
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -74,33 +90,47 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
-    container: {
-        flex: 1,
-        padding: spacing.m,
+    scrollContent: {
+        flexGrow: 1,
+        padding: spacing.l,
+        justifyContent: 'center',
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: spacing.xxl,
+    },
+    logoCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(45, 127, 249, 0.1)', // Primary with opacity
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.m,
+    },
+    appName: {
+        ...typography.h1,
+        fontSize: 32,
+        color: colors.primary,
+        marginBottom: spacing.xs,
+    },
+    tagline: {
+        ...typography.body,
+        color: colors.textSecondary,
     },
     form: {
-        marginTop: spacing.xl,
-        flex: 1,
-    },
-    label: {
-        ...typography.body,
-        fontWeight: '600',
-        marginBottom: spacing.xs,
-        color: colors.text,
-    },
-    input: {
-        backgroundColor: colors.white,
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: spacing.s,
-        padding: spacing.m,
-        marginBottom: spacing.m,
-        ...typography.body,
+        marginBottom: spacing.xl,
     },
     buttonContainer: {
-        marginTop: spacing.m,
+        marginTop: spacing.s,
     },
     footer: {
-        paddingVertical: spacing.l,
+        marginTop: 'auto',
+        alignItems: 'center',
     },
+    version: {
+        ...typography.caption,
+        marginTop: spacing.m,
+        color: colors.textSecondary,
+    }
 });

@@ -8,6 +8,9 @@ import { colors } from '../../../constants/colors';
 import { spacing } from '../../../constants/spacing';
 import { typography } from '../../../constants/typography';
 
+import ViewShot from 'react-native-view-shot';
+import { useRef } from 'react';
+
 export const SpiralCanvasScreen = () => {
     const {
         points,
@@ -22,35 +25,55 @@ export const SpiralCanvasScreen = () => {
 
     const { width } = useWindowDimensions();
     const canvasSize = width - spacing.m * 2;
+    const viewShotRef = useRef<ViewShot>(null);
+
+    const handleSubmit = async () => {
+        if (viewShotRef.current) {
+            try {
+                const uri = await viewShotRef.current?.capture();
+                if (uri) {
+                    await submit(uri);
+                }
+            } catch (error) {
+                console.error("Failed to capture spiral", error);
+            }
+        }
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <Text style={styles.instructions}>Trace the spiral below</Text>
 
-                <SpiralCanvas
-                    width={canvasSize}
-                    height={canvasSize}
-                    points={points}
-                    onStart={startDrawing}
-                    onMove={addPoint}
-                    onEnd={stopDrawing}
-                />
+                <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
+                    <SpiralCanvas
+                        width={canvasSize}
+                        height={canvasSize}
+                        points={points}
+                        onStart={startDrawing}
+                        onMove={addPoint}
+                        onEnd={stopDrawing}
+                    />
+                </ViewShot>
 
                 <View style={styles.controls}>
-                    <Button
-                        title="Clear"
-                        variant="outline"
-                        onPress={clear}
-                        disabled={!hasDrawing || isSubmitting}
-                    />
+                    <View style={{ flex: 1 }}>
+                        <Button
+                            title="Clear"
+                            variant="outline"
+                            onPress={clear}
+                            disabled={!hasDrawing || isSubmitting}
+                        />
+                    </View>
                     <View style={styles.spacer} />
-                    <Button
-                        title="Submit"
-                        onPress={submit}
-                        disabled={!hasDrawing}
-                        loading={isSubmitting}
-                    />
+                    <View style={{ flex: 1 }}>
+                        <Button
+                            title="Submit"
+                            onPress={handleSubmit}
+                            disabled={!hasDrawing}
+                            loading={isSubmitting}
+                        />
+                    </View>
                 </View>
             </View>
         </SafeAreaView>

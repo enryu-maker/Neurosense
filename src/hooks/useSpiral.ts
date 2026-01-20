@@ -31,12 +31,11 @@ export const useSpiral = () => {
         setPoints([]);
     };
 
-    const submit = async () => {
-        if (points.length < 10) return;
+    const submit = async (imageUri: string) => {
+        if (points.length <= 20 || isSubmitting) return;
         setIsSubmitting(true);
         try {
-            // In a real app we would snapshot the view or send the points
-            const result = await assessmentApi.submitSpiral('mock-spiral-image-uri');
+            const result = await assessmentApi.submitSpiral(imageUri);
             navigation.replace('Result', { assessmentType: 'spiral', result });
         } catch (error) {
             console.error(error);

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DashboardStackParamList } from '../../types/navigation.types';
@@ -9,6 +10,13 @@ import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 import { useAuth } from '../../hooks/useAuth';
+import {
+    Brain,
+    Wind,
+    Mic,
+    FileText,
+    Activity
+} from 'lucide-react-native';
 
 type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
@@ -19,54 +27,70 @@ export const DashboardScreen = () => {
     const assessments = [
         {
             title: 'Cognitive Quiz',
-            description: 'Answer simple questions to test memory and attention.',
+            subtitle: 'Memory & Focus',
             route: 'QuizInstructions' as const,
-            color: '#FF9500', // Orange
+            icon: <Brain size={32} color={colors.primary} />,
+            color: colors.primary,
         },
         {
             title: 'Spiral Drawing',
-            description: 'Trace a spiral to assess motor control.',
+            subtitle: 'Motor Control',
             route: 'SpiralInstructions' as const,
-            color: '#5856D6', // Purple
+            icon: <Wind size={32} color={colors.secondary} />,
+            color: colors.secondary,
         },
         {
             title: 'Voice Analysis',
-            description: 'Record a phrase to analyze speech patterns.',
+            subtitle: 'Speech Patterns',
             route: 'VoiceInstructions' as const,
-            color: '#34C759', // Green
+            icon: <Mic size={32} color={colors.accent} />,
+            color: colors.accent,
         },
         {
             title: 'Brain MRI',
-            description: 'Upload an MRI scan for analysis.',
+            subtitle: 'Scan Analysis',
             route: 'BrainMRIUpload' as const,
-            color: '#007AFF', // Blue
+            icon: <Activity size={32} color={colors.warning} />,
+            color: colors.warning,
         },
     ];
 
     return (
-        <View style={styles.container}>
-            <Header title="Dashboard" subtitle={`Welcome, ${user?.name || 'User'}`} />
+        <SafeAreaView style={styles.container}>
+            <Header title="Dashboard" subtitle={`Hello, ${user?.name || 'User'}`} />
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                <Text style={styles.sectionTitle}>Select an Assessment</Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                {assessments.map((item) => (
-                    <TouchableOpacity
-                        key={item.title}
-                        onPress={() => navigation.navigate(item.route)}
-                        activeOpacity={0.8}
-                    >
-                        <Card style={styles.card}>
-                            <View style={[styles.iconIndicator, { backgroundColor: item.color }]} />
-                            <View style={styles.cardContent}>
-                                <Text style={styles.cardTitle}>{item.title}</Text>
-                                <Text style={styles.cardDescription}>{item.description}</Text>
+                <View style={styles.bannerContainer}>
+                    <Card style={styles.banner} variant="highlight">
+                        <View style={styles.bannerContent}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.bannerTitle}>Track Progress</Text>
+                                <Text style={styles.bannerText}>Complete your weekly assessments to maintain a healthy score.</Text>
                             </View>
-                        </Card>
-                    </TouchableOpacity>
-                ))}
+                            <FileText size={40} color="rgba(255,255,255,0.8)" />
+                        </View>
+                    </Card>
+                </View>
+
+                <Text style={styles.sectionTitle}>Assessments</Text>
+
+                <View style={styles.grid}>
+                    {assessments.map((item, index) => (
+                        <View key={item.title} style={styles.gridItem}>
+                            <Card
+                                style={styles.card}
+                                onPress={() => navigation.navigate(item.route)}
+                                icon={item.icon}
+                            >
+                                <Text style={styles.cardTitle}>{item.title}</Text>
+                                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                            </Card>
+                        </View>
+                    ))}
+                </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -77,33 +101,59 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: spacing.m,
+        paddingBottom: spacing.xxl,
+    },
+    bannerContainer: {
+        marginBottom: spacing.l,
+    },
+    banner: {
+        padding: spacing.l,
+    },
+    bannerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    bannerTitle: {
+        ...typography.h2,
+        color: colors.white,
+        marginBottom: spacing.xs,
+    },
+    bannerText: {
+        ...typography.caption,
+        color: 'rgba(255,255,255,0.9)',
+        fontSize: 13,
     },
     sectionTitle: {
         ...typography.h2,
+        fontSize: 18,
         marginBottom: spacing.m,
         color: colors.text,
     },
-    card: {
+    grid: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginHorizontal: -spacing.s, // counteract padding for items
+    },
+    gridItem: {
+        width: '50%',
+        padding: spacing.s,
+    },
+    card: {
+        height: 160,
+        justifyContent: 'center',
         alignItems: 'center',
-        padding: spacing.m,
-    },
-    iconIndicator: {
-        width: 12,
-        height: '100%',
-        borderRadius: 6,
-        marginRight: spacing.m,
-    },
-    cardContent: {
-        flex: 1,
+        paddingVertical: spacing.l,
     },
     cardTitle: {
-        ...typography.h2,
-        fontSize: 20,
-        marginBottom: spacing.xs,
+        ...typography.subtitle,
+        fontSize: 16,
+        marginTop: spacing.m,
+        textAlign: 'center',
     },
-    cardDescription: {
-        ...typography.body,
-        color: colors.textSecondary,
+    cardSubtitle: {
+        ...typography.caption,
+        textAlign: 'center',
+        marginTop: spacing.xs,
     },
 });

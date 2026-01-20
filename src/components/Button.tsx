@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
 import { typography } from '../constants/typography';
@@ -10,6 +10,7 @@ interface ButtonProps {
     variant?: 'primary' | 'secondary' | 'outline';
     loading?: boolean;
     disabled?: boolean;
+    icon?: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,6 +19,7 @@ export const Button: React.FC<ButtonProps> = ({
     variant = 'primary',
     loading = false,
     disabled = false,
+    icon,
 }) => {
     const getBackgroundColor = () => {
         if (disabled) return colors.border;
@@ -45,7 +47,10 @@ export const Button: React.FC<ButtonProps> = ({
             {loading ? (
                 <ActivityIndicator color={getTextColor()} />
             ) : (
-                <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
+                <View style={styles.content}>
+                    {icon && <View style={styles.icon}>{icon}</View>}
+                    <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
+                </View>
             )}
         </TouchableOpacity>
     );
@@ -55,10 +60,16 @@ const styles = StyleSheet.create({
     container: {
         paddingVertical: spacing.m,
         paddingHorizontal: spacing.l,
-        borderRadius: spacing.s,
+        borderRadius: 30, // Pill shape
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
+        // Slight shadow for buttons too
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 2,
     },
     outline: {
         borderWidth: 1,
@@ -67,4 +78,11 @@ const styles = StyleSheet.create({
     text: {
         ...typography.button,
     },
+    content: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    icon: {
+        marginRight: spacing.s,
+    }
 });
