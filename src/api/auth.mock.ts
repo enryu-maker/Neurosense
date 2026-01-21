@@ -27,5 +27,17 @@ export const authApi = {
     checkSession: async (): Promise<User> => {
         await mockDelay(1000);
         return MOCK_USER;
+    },
+
+    signup: async (username: string, password: string, name: string): Promise<AuthResponse> => {
+        await mockDelay(2000);
+        return {
+            user: {
+                id: '2',
+                username,
+                name: name || 'New User',
+            },
+            token: 'mock-jwt-token-new',
+        };
     }
 };

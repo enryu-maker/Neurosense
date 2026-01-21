@@ -11,6 +11,7 @@ export type AppTabParamList = {
     HomeTab: undefined;
     DashboardTab: undefined;
     HistoryTab: undefined;
+    ProfileTab: undefined;
 };
 
 export type DashboardStackParamList = {

@@ -20,11 +20,11 @@ export const DashboardStack = () => {
 
             {/* Quiz */}
             <Stack.Screen name="QuizInstructions" component={QuizInstructions} options={{ title: 'Quiz' }} />
-            <Stack.Screen name="QuizQuestion" component={QuizQuestion} options={{ title: 'Quiz' }} />
+            <Stack.Screen name="QuizQuestion" component={QuizQuestion}options={{ headerShown: false }} />
 
             {/* Spiral */}
             <Stack.Screen name="SpiralInstructions" component={SpiralInstructions} options={{ title: 'Spiral Drawing' }} />
-            <Stack.Screen name="SpiralCanvas" component={SpiralCanvasScreen} options={{ title: 'Draw Spiral' }} />
+            <Stack.Screen name="SpiralCanvas" component={SpiralCanvasScreen} options={{ headerShown: false }} />
 
             {/* Voice */}
             <Stack.Screen name="VoiceInstructions" component={VoiceInstructions} options={{ title: 'Voice Analysis' }} />

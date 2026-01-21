@@ -8,7 +8,9 @@ interface AuthContextType {
     isLoading: boolean;
     isInitialized: boolean;
     login: (u: string, p: string) => Promise<void>;
+    signup: (u: string, p: string, n: string) => Promise<void>;
     logout: () => Promise<void>;
+    updateUser: (updates: Partial<User>) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -50,6 +52,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signup = async (u: string, p: string, n: string) => {
+        setIsLoading(true);
+        try {
+            const response = await authApi.signup(u, p, n);
+            setUser(response.user);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updateUser = async (updates: Partial<User>) => {
+        if (!user) return;
+        setUser({ ...user, ...updates });
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -58,7 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 isLoading,
                 isInitialized,
                 login,
+                signup,
                 logout,
+                updateUser,
             }}
         >
             {children}

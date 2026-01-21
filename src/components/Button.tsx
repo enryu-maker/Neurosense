@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../constants/colors';
 import { spacing } from '../constants/spacing';
 import { typography } from '../constants/typography';
@@ -11,6 +11,8 @@ interface ButtonProps {
     loading?: boolean;
     disabled?: boolean;
     icon?: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -20,6 +22,8 @@ export const Button: React.FC<ButtonProps> = ({
     loading = false,
     disabled = false,
     icon,
+    style,
+    textStyle,
 }) => {
     const getBackgroundColor = () => {
         if (disabled) return colors.border;
@@ -40,6 +44,7 @@ export const Button: React.FC<ButtonProps> = ({
                 styles.container,
                 { backgroundColor: getBackgroundColor() },
                 variant === 'outline' && styles.outline,
+                style,
             ]}
             onPress={onPress}
             disabled={disabled || loading}
@@ -49,7 +54,7 @@ export const Button: React.FC<ButtonProps> = ({
             ) : (
                 <View style={styles.content}>
                     {icon && <View style={styles.icon}>{icon}</View>}
-                    <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
+                    <Text style={[styles.text, { color: getTextColor() }, textStyle]}>{title}</Text>
                 </View>
             )}
         </TouchableOpacity>

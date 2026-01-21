@@ -1,58 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { historyApi } from '../../api/history.mock';
 import { HistoryItem } from '../../types/history.types';
 import { HistoryStackParamList } from '../../types/navigation.types';
-import { Header } from '../../components/Header';
-import { Card } from '../../components/Card';
 import { Loader } from '../../components/Loader';
 import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 import { formatDate } from '../../utils/formatDate';
 import {
-    Brain,
-    Wind,
-    Mic,
-    Activity,
-    Calendar,
+    Search,
+    User as UserIcon,
     ChevronRight,
-    ClipboardList
+    TrendingUp,
+    Activity
 } from 'lucide-react-native';
 
 type NavigationProp = NativeStackNavigationProp<HistoryStackParamList>;
 
-const getAssessmentIcon = (type: string) => {
-    switch (type) {
-        case 'quiz': return <Brain size={24} color={colors.white} />;
-        case 'spiral': return <Wind size={24} color={colors.white} />;
-        case 'voice': return <Mic size={24} color={colors.white} />;
-        case 'mri': return <Activity size={24} color={colors.white} />;
-        default: return <Activity size={24} color={colors.white} />;
-    }
-};
-
-const getAssessmentColor = (type: string) => {
-    switch (type) {
-        case 'quiz': return colors.primary;
-        case 'spiral': return colors.secondary;
-        case 'voice': return colors.accent;
-        case 'mri': return colors.warning;
-        default: return colors.primary;
-    }
-};
+// Mock User Avatar (or use Icon)
+const UserAvatar = () => (
+    <View style={styles.avatarContainer}>
+        <UserIcon size={20} color={colors.primary} />
+    </View>
+);
 
 const getAssessmentLabel = (type: string) => {
     switch (type) {
-        case 'quiz': return 'Cognitive Quiz';
-        case 'spiral': return 'Spiral Drawing';
-        case 'voice': return 'Voice Analysis';
-        case 'mri': return 'Brain MRI';
+        case 'quiz': return 'Your Risk Quiz';
+        case 'spiral': return 'Your Spiral Test';
+        case 'voice': return 'Your Voice Analysis';
+        case 'mri': return 'Your Brain MRI';
         default: return 'Assessment';
     }
+};
+
+const getStatusBadge = (riskLevel: string) => {
+    const isHigh = riskLevel === 'HIGH';
+    const isMedium = riskLevel === 'MEDIUM';
+
+    let backgroundColor = '#DCFCE7'; // Green bg default
+    let color = '#15803D'; // Green text default
+    let text = 'HEALTHY';
+
+    if (isHigh) {
+        backgroundColor = '#FEF3C7'; // Yellow/Amber bg per design
+        color = '#B45309'; // Amber text
+        text = 'EARLY SIGNS';
+    } else if (isMedium) {
+        backgroundColor = '#FEF3C7';
+        color = '#B45309';
+        text = 'ATTENTION';
+    }
+
+    return { backgroundColor, color, text };
 };
 
 export const HistoryListScreen = () => {
@@ -76,81 +80,88 @@ export const HistoryListScreen = () => {
     };
 
     const renderItem = ({ item }: { item: HistoryItem }) => {
-        const color = getAssessmentColor(item.type);
-        const icon = getAssessmentIcon(item.type);
+        const { backgroundColor, color, text } = getStatusBadge(item.riskLevel);
         const label = getAssessmentLabel(item.type);
+        const isWarning = item.riskLevel === 'HIGH' || item.riskLevel === 'MEDIUM';
 
         return (
             <TouchableOpacity
                 onPress={() => navigation.navigate('HistoryDetail', { id: item.id })}
                 activeOpacity={0.7}
+                style={styles.cardContainer}
             >
-                <Card style={styles.card}>
-                    <View style={styles.row}>
-                        {/* Icon Box */}
-                        <View style={[styles.iconBox, { backgroundColor: color }]}>
-                            {icon}
-                        </View>
+                {/* Colored Left Border for warnings */}
+                {isWarning && <View style={[styles.warningBorder, { backgroundColor: '#F59E0B' }]} />}
 
-                        {/* Content */}
-                        <View style={styles.content}>
-                            <Text style={styles.title}>{label}</Text>
-                            <View style={styles.metaRow}>
-                                <Calendar size={14} color={colors.textSecondary} style={{ marginRight: 4 }} />
-                                <Text style={styles.date}>{formatDate(item.date)}</Text>
-                            </View>
+                <View style={styles.cardContent}>
+                    {/* Badge & Date Row */}
+                    <View style={styles.metaRow}>
+                        <View style={[styles.badge, { backgroundColor }]}>
+                            <Text style={[styles.badgeText, { color }]}>{text}</Text>
                         </View>
-
-                        {/* Status/Arrow */}
-                        <View style={styles.rightSection}>
-                            <View style={[
-                                styles.badge,
-                                { backgroundColor: item.riskLevel === 'HIGH' ? '#FFEBEE' : '#E8F5E9' }
-                            ]}>
-                                <Text style={[
-                                    styles.badgeText,
-                                    { color: item.riskLevel === 'HIGH' ? colors.error : colors.success }
-                                ]}>
-                                    {item.riskLevel}
-                                </Text>
-                            </View>
-                        </View>
+                        <Text style={styles.date}>{formatDate(item.date)}</Text>
                     </View>
-                </Card>
+
+                    {/* Title & Arrow Row */}
+                    <View style={styles.titleRow}>
+                        <Text style={styles.itemTitle}>{label}</Text>
+                        <ChevronRight size={20} color="#94A3B8" />
+                    </View>
+                </View>
             </TouchableOpacity>
         );
     };
 
     if (loading) return (
         <SafeAreaView style={styles.safeArea}>
-            <Header title="History" subtitle="Past Assessments" />
             <Loader message="Loading history..." />
         </SafeAreaView>
     );
 
     return (
-        <SafeAreaView style={styles.safeArea} >
-            <View style={styles.container}>
-                <Header title="History" subtitle="Past Assessments" />
-
-                {history.length === 0 ? (
-                    <View style={styles.emptyState}>
-                        <ClipboardList size={64} color={colors.border} />
-                        <Text style={styles.emptyTitle}>No History Yet</Text>
-                        <Text style={styles.emptyText}>Complete an assessment to see your progress here.</Text>
-                    </View>
-                ) : (
-                    <FlatList
-                        data={history}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                        contentContainerStyle={styles.listContent}
-                        refreshing={loading}
-                        onRefresh={loadHistory}
-                        showsVerticalScrollIndicator={false}
-                    />
-                )}
+        <SafeAreaView style={styles.safeArea}>
+            {/* Header */}
+            <View style={styles.header}>
+                <View style={styles.headerLeft}>
+                    <UserAvatar />
+                    <Text style={styles.headerTitle}>Test History</Text>
+                </View>
+                {/* <TouchableOpacity style={styles.searchButton}>
+                    <Search size={24} color="#0F172A" />
+                </TouchableOpacity> */}
             </View>
+
+            <FlatList
+                data={history}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.listContent}
+                refreshing={loading}
+                onRefresh={loadHistory}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                    <>
+                        {/* Insight Card */}
+                        {/* <View style={styles.insightCard}>
+                            <View style={styles.iconContainer}>
+                                <TrendingUp size={24} color={colors.white} />
+                            </View>
+                            <View>
+                                <Text style={styles.insightTitle}>Monthly Trend Stable</Text>
+                                <Text style={styles.insightSubtitle}>
+                                    Motor skills remained within healthy baseline for 3 weeks consecutive.
+                                </Text>
+                            </View>
+                        </View> */}
+
+                        {/* List Header */}
+                        <View style={styles.sectionHeaderContainer}>
+                            <Text style={styles.sectionTitle}>Your Medical Records</Text>
+                            <Text style={styles.sectionSubtitle}>Condensed overview of your recent tests</Text>
+                        </View>
+                    </>
+                }
+            />
         </SafeAreaView>
     );
 };
@@ -160,74 +171,137 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
-    container: {
-        flex: 1,
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: spacing.m,
+        paddingVertical: spacing.m,
+        backgroundColor: colors.background, // Ensure header matches bg
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    avatarContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#E6F6F4', // Light teal
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.s,
+    },
+    headerTitle: {
+        fontSize: 20, // H2 size approx
+        fontWeight: '700',
+        color: '#0F172A',
+    },
+    searchButton: {
+        padding: 4,
     },
     listContent: {
         padding: spacing.m,
         paddingBottom: spacing.xxl,
     },
-    card: {
-        padding: spacing.m,
-        marginBottom: spacing.m,
-    },
-    row: {
+    insightCard: {
+        backgroundColor: '#1E293B', // Dark Slate/Blue
+        borderRadius: 16,
+        padding: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: spacing.xl,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 4,
     },
-    iconBox: {
+    iconContainer: {
         width: 48,
         height: 48,
-        borderRadius: 16,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: spacing.m,
+        marginRight: 16,
     },
-    content: {
-        flex: 1,
-    },
-    title: {
-        ...typography.subtitle,
+    insightTitle: {
         fontSize: 16,
+        fontWeight: '700',
+        color: colors.white,
         marginBottom: 4,
+    },
+    insightSubtitle: {
+        fontSize: 12,
+        color: '#94A3B8', // Light grey text
+        lineHeight: 18,
+        flexShrink: 1, // Allow wrap
+        maxWidth: '95%',
+    },
+    sectionHeaderContainer: {
+        marginBottom: spacing.m,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#0F172A', // Dark Navy
+        marginBottom: 4,
+    },
+    sectionSubtitle: {
+        fontSize: 14,
+        color: '#64748B',
+    },
+    cardContainer: {
+        backgroundColor: colors.white,
+        borderRadius: 12,
+        marginBottom: spacing.m,
+        flexDirection: 'row',
+        overflow: 'hidden', // Contain the left border
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    warningBorder: {
+        width: 6,
+        height: '100%',
+    },
+    cardContent: {
+        flex: 1,
+        padding: 16,
+        paddingLeft: 16, // Reset padding if border exists
     },
     metaRow: {
         flexDirection: 'row',
+        justifyContent: 'space-between', // Badge left, Date right
         alignItems: 'center',
-    },
-    date: {
-        ...typography.caption,
-        color: colors.textSecondary,
-    },
-    rightSection: {
-        alignItems: 'flex-end',
+        marginBottom: 8,
     },
     badge: {
-        paddingHorizontal: spacing.s,
+        paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 8,
+        borderRadius: 6,
     },
     badgeText: {
-        ...typography.caption,
+        fontSize: 10,
         fontWeight: '700',
-        fontSize: 11,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
     },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
+    date: {
+        fontSize: 12,
+        color: '#94A3B8',
+    },
+    titleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: spacing.xl,
-        marginTop: -spacing.xl, // Optical adjustment
     },
-    emptyTitle: {
-        ...typography.h2,
-        color: colors.textSecondary,
-        marginTop: spacing.m,
-        marginBottom: spacing.s,
+    itemTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#0F172A',
     },
-    emptyText: {
-        ...typography.body,
-        textAlign: 'center',
-        color: colors.textSecondary,
-    }
 });

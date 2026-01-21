@@ -11,6 +11,12 @@ export const typography = {
         letterSpacing: 0.35,
         color: '#1C1C1E',
     },
+    h3: {
+        fontSize: 18,
+        fontWeight: '600' as const,
+        letterSpacing: 0.35,
+        color: '#1C1C1E',
+    },
     subtitle: {
         fontSize: 18,
         fontWeight: '500' as const,

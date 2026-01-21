@@ -5,9 +5,9 @@ import { DashboardStack } from './DashboardStack';
 import { HistoryStack } from './HistoryStack';
 
 import { HomeScreen } from '../screens/Home/HomeScreen';
-
 import { colors } from '../constants/colors';
-import { Home, LayoutDashboard, History } from 'lucide-react-native';
+import { ProfileScreen } from '../screens/Profile/ProfileScreen';
+import { Home, LayoutDashboard, History, User } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
 
@@ -36,6 +36,8 @@ export const AppNavigator = () => {
                         return <LayoutDashboard size={size} color={color} />;
                     } else if (route.name === 'HistoryTab') {
                         return <History size={size} color={color} />;
+                    } else if (route.name === 'ProfileTab') {
+                        return <User size={size} color={color} />;
                     }
                 },
                 tabBarLabelStyle: {
@@ -52,12 +54,17 @@ export const AppNavigator = () => {
             <Tab.Screen
                 name="DashboardTab"
                 component={DashboardStack}
-                options={{ title: 'Dashboard' }}
+                options={{ title: 'Progress' }}
             />
             <Tab.Screen
                 name="HistoryTab"
                 component={HistoryStack}
-                options={{ title: 'History' }}
+                options={{ title: 'Insights' }}
+            />
+            <Tab.Screen
+                name="ProfileTab"
+                component={ProfileScreen}
+                options={{ title: 'Profile' }}
             />
         </Tab.Navigator>
     );

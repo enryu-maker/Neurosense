@@ -8,8 +8,8 @@ import { DashboardStackParamList } from '../types/navigation.types';
 export const useQuiz = () => {
     const navigation = useNavigation<NativeStackNavigationProp<DashboardStackParamList>>();
     const [currentIndex, setCurrentIndex] = useState(0);
-    // track answers by question ID
-    const [answers, setAnswers] = useState<Record<number, boolean>>({});
+    // track answers by question ID (0: No/Never, 1: Sometimes, 2: Yes/Frequently)
+    const [answers, setAnswers] = useState<Record<number, number>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const question = QUIZ_QUESTIONS[currentIndex];
@@ -17,7 +17,7 @@ export const useQuiz = () => {
     const progress = (currentIndex + 1) / QUIZ_QUESTIONS.length;
     const currentAnswer = answers[question.id];
 
-    const selectAnswer = (answer: boolean) => {
+    const selectAnswer = (answer: number) => {
         setAnswers((prev) => ({ ...prev, [question.id]: answer }));
     };
 
@@ -34,6 +34,7 @@ export const useQuiz = () => {
     const submit = async () => {
         setIsSubmitting(true);
         try {
+            // Convert numerical answers to score or pass as is
             const result = await assessmentApi.submitQuiz(answers);
             // We use replace so user can't go back into the quiz state
             navigation.replace('Result', { assessmentType: 'quiz', result });
