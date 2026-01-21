@@ -23,11 +23,13 @@ export const QuizQuestion = () => {
         isSubmitting
     } = useQuiz();
 
-    // 2 = Yes, frequently, 1 = Sometimes, 0 = No, never
+    // 0 = Never, 1 = Rarely, 2 = Sometimes, 3 = Often, 4 = Always
     const options = [
-        { label: 'Yes, frequently', value: 2 },
-        { label: 'Sometimes', value: 1 },
-        { label: 'No, never', value: 0 },
+        { label: 'Never', value: 0 },
+        { label: 'Rarely', value: 1 },
+        { label: 'Sometimes', value: 2 },
+        { label: 'Often', value: 3 },
+        { label: 'Always', value: 4 },
     ];
 
     const renderOption = (option: { label: string; value: number }) => {
@@ -50,7 +52,7 @@ export const QuizQuestion = () => {
                 </Text>
 
                 {isSelected ? (
-                    <CheckCircle2 size={24} color={colors.primary} weight="fill" />
+                    <CheckCircle2 size={24} color={colors.primary} fill={colors.primary} />
                 ) : (
                     <View style={styles.radioEmpty} />
                 )}

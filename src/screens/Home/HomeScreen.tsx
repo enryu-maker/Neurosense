@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { User, Activity, Mic, Shield, Lock, Award, Brain, ArrowRight } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { User, Activity, Mic, Shield, Lock, Award, Brain } from 'lucide-react-native';
 import { colors } from '../../constants/colors';
 import { typography } from '../../constants/typography';
 import { Button } from '../../components/Button';
@@ -12,25 +12,7 @@ import { RootStackParamList } from '../../navigation/navigation.types';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export const HomeScreen = () => {
-    const insets = useSafeAreaInsets();
     const navigation = useNavigation<NavigationProp>();
-
-    const renderHeader = () => (
-        <View style={[styles.header, { marginTop: insets.top }]}>
-            <View style={styles.headerLeft}>
-                <View style={styles.logoIcon}>
-                    <Brain size={20} color={colors.primary} />
-                </View>
-                <Text style={styles.headerLogo}>Neurosense</Text>
-            </View>
-            <TouchableOpacity
-                style={styles.profileButton}
-                onPress={() => navigation.navigate('App', { screen: 'ProfileTab' })}
-            >
-                <User size={24} color={colors.primary} />
-            </TouchableOpacity>
-        </View>
-    );
 
     const renderHero = () => (
         <View style={styles.heroContainer}>
@@ -88,8 +70,21 @@ export const HomeScreen = () => {
     );
 
     return (
-        <View style={styles.container}>
-            {renderHeader()}
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+            <View style={styles.header}>
+                <View style={styles.headerLeft}>
+                    <View style={styles.logoIcon}>
+                        <Brain size={20} color={colors.primary} />
+                    </View>
+                    <Text style={styles.headerLogo}>Neurosense</Text>
+                </View>
+                <TouchableOpacity
+                    style={styles.profileButton}
+                    onPress={() => navigation.navigate('App', { screen: 'ProfileTab' })}
+                >
+                    <User size={24} color={colors.primary} />
+                </TouchableOpacity>
+            </View>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
@@ -137,24 +132,8 @@ export const HomeScreen = () => {
                         )}
                     </View>
                 </View>
-
-                {/* <View style={styles.footer}>
-                    <View style={styles.footerLogoRow}>
-                        <Brain size={16} color={colors.textSecondary} />
-                        <Text style={styles.footerLogoText}>Neurosense</Text>
-                    </View>
-                    <Text style={styles.disclaimer}>
-                        Disclaimer: Neurosense is a monitoring tool and not a substitute for professional medical advice, diagnosis, or treatment.
-                    </Text>
-                    <View style={styles.footerLinks}>
-                        <Text style={styles.linkText}>Privacy Policy</Text>
-                        <Text style={styles.linkText}>Terms of Service</Text>
-                        <Text style={styles.linkText}>Support</Text>
-                    </View>
-                    <Text style={styles.copyright}>© 2024 Neurosense Health AI. All rights reserved.</Text>
-                </View> */}
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 

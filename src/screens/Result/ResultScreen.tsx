@@ -34,9 +34,9 @@ export const ResultScreen = ({ route, navigation }: Props) => {
 
     const renderHeader = () => (
         <View style={styles.header}>
-            <TouchableOpacity onPress={handleClose}>
+            {/* <TouchableOpacity onPress={handleClose}>
                 <X size={24} color={colors.text} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Text style={styles.headerTitle}>Quiz Results</Text>
             <TouchableOpacity>
                 <HelpCircle size={24} color={colors.textSecondary} />
