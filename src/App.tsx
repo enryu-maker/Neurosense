@@ -1,14 +1,15 @@
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './navigation/RootNavigator';
-import { AuthProvider } from './store/auth.store';
+import { Provider } from 'react-redux';
+import { store } from './store';
 
 const App = (): React.JSX.Element => {
     return (
         <SafeAreaProvider>
-            <AuthProvider>
+            <Provider store={store}>
                 <RootNavigator />
-            </AuthProvider>
+            </Provider>
         </SafeAreaProvider>
     );
 };

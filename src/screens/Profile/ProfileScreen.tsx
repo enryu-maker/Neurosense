@@ -69,28 +69,6 @@ export const ProfileScreen = () => {
                     <Text style={styles.userId}>User ID</Text>
                 </View>
 
-                {/* Personal Information */}
-                <View style={styles.sectionHeaderContainer}>
-                    <Text style={styles.sectionHeader}>PERSONAL INFORMATION</Text>
-                </View>
-
-                <View style={styles.card}>
-                    <Input
-                        label="Full Name"
-                        value={name}
-                        onChangeText={setName}
-                        placeholder="Enter full name"
-                        icon={<PenLine size={20} color={colors.textSecondary} />}
-                        containerStyle={{ marginBottom: 20 }}
-                    />
-
-                    <Button
-                        title="Update Name"
-                        onPress={handleUpdateName}
-                        style={styles.updateButton}
-                    />
-                </View>
-
                 {/* Clinical Trust */}
                 <View style={styles.sectionHeaderContainer}>
                     <Text style={styles.sectionHeader}>CLINICAL TRUST</Text>

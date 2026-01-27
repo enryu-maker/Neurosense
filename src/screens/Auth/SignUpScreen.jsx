@@ -8,24 +8,28 @@ import { Input } from '../../components/Input';
 import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 import { Brain, Eye, EyeOff, UserPlus, ShieldCheck, User } from 'lucide-react-native';
+import { useDispatch } from 'react-redux';
+import { RegisterAction } from '../../store/actions/authAction';
 
 export const SignUpScreen = () => {
-    const { signup, isLoading } = useAuth();
+    const dispatch = useDispatch();
     const navigation = useNavigation();
 
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleSignup = async () => {
-        if (!username || !password || !name) {
+        if (!username || !password) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
         try {
-            await signup(username, password, name);
+            dispatch(RegisterAction({ username, password }, setLoading, navigation));
         } catch (e) {
+            console.log(e);
             Alert.alert('Registration Failed', 'Could not create account');
         }
     };
@@ -58,20 +62,11 @@ export const SignUpScreen = () => {
                         {/* Form */}
                         <View style={styles.form}>
                             <Input
-                                label="Full Name"
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="Your full name"
-                                containerStyle={styles.inputContainer}
-                                icon={<User size={20} color={colors.textSecondary} />}
-                            />
-
-                            <Input
-                                label="Email / Username"
+                                label="Username"
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
-                                placeholder="name@example.com"
+                                placeholder="Enter your username"
                                 containerStyle={styles.inputContainer}
                             />
 
@@ -81,7 +76,7 @@ export const SignUpScreen = () => {
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
-                                    placeholder="Create a password"
+                                    placeholder="Enter your password"
                                     containerStyle={styles.inputContainer}
                                 />
                                 <TouchableOpacity
@@ -99,7 +94,7 @@ export const SignUpScreen = () => {
                             <Button
                                 title="Sign Up"
                                 onPress={handleSignup}
-                                loading={isLoading}
+                                // loading={isLoading}
                                 icon={<UserPlus size={20} color={colors.white} />}
                                 style={styles.signupButton}
                                 textStyle={{ fontSize: 16, fontWeight: '700' }}

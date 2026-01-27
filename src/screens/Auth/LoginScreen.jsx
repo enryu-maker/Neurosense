@@ -1,37 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 import { Brain, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react-native';
-
+import { LoginAction } from '../../store/actions/authAction';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 
 export const LoginScreen = () => {
-    const { login, isLoading } = useAuth();
     const navigation = useNavigation();
+    const dispatch = useDispatch();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
         if (!username || !password) {
             Alert.alert('Error', 'Please enter username and password');
             return;
         }
-        try {
-            await login(username, password);
-        } catch (e) {
-            Alert.alert('Login Failed', 'Invalid credentials');
-        }
+        dispatch(LoginAction({ username: username, password: password }, setLoading, navigation))
+
     };
 
     const handleGoToSignUp = () => {
-        (navigation as any).navigate('SignUp');
+        navigation.navigate('SignUp');
     };
 
     return (
@@ -58,11 +56,11 @@ export const LoginScreen = () => {
                         {/* Form */}
                         <View style={styles.form}>
                             <Input
-                                label="Email Address"
+                                label="Username"
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
-                                placeholder="name@example.com"
+                                placeholder="Enter your username"
                                 containerStyle={styles.inputContainer}
                             />
 
@@ -94,7 +92,7 @@ export const LoginScreen = () => {
                             <Button
                                 title="Log In"
                                 onPress={handleLogin}
-                                loading={isLoading}
+                                // loading={isLoading}
                                 icon={<ArrowRight size={20} color={colors.white} />}
                                 style={styles.loginButton}
                                 textStyle={{ fontSize: 16, fontWeight: '700' }}

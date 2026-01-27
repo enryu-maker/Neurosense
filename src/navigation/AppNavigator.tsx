@@ -6,7 +6,7 @@ import { HistoryStack } from './HistoryStack';
 
 import { HomeScreen } from '../screens/Home/HomeScreen';
 import { colors } from '../constants/colors';
-import { ProfileScreen } from '../screens/Profile/ProfileScreen';
+import { ProfileScreen } from '../screens/Profile/ProfileScreen.tsx';
 import { Home, LayoutDashboard, History, User } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
