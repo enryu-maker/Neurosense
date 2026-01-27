@@ -34,8 +34,16 @@ export const useQuiz = () => {
     const submit = async () => {
         setIsSubmitting(true);
         try {
-            // Convert numerical answers to score or pass as is
-            const result = await assessmentApi.submitQuiz(answers);
+            // Transform answers to required format: { "q1": 0, "q2": 1, ... }
+            const formattedAnswers: Record<string, number> = {};
+            Object.keys(answers).forEach((key) => {
+                const qKey = `q${key}`;
+                formattedAnswers[qKey] = answers[Number(key)];
+            });
+
+            // console.log('Final Dictionary for API:', JSON.stringify(formattedAnswers, null, 2));
+
+            const result = await assessmentApi.submitQuiz(formattedAnswers);
             // We use replace so user can't go back into the quiz state
             navigation.replace('Result', { assessmentType: 'quiz', result });
         } catch (error) {

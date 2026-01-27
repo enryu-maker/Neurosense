@@ -2,7 +2,8 @@ import { mockDelay } from '../services/mockDelay.service';
 import { AssessmentResult } from '../types/assessment.types';
 
 export const assessmentApi = {
-    submitQuiz: async (answers: any): Promise<AssessmentResult> => {
+    submitQuiz: async (answers: Record<string, number>): Promise<AssessmentResult> => {
+        // console.log('Mock API received:', answers);
         await mockDelay(2000);
         return {
             id: Date.now().toString(),
