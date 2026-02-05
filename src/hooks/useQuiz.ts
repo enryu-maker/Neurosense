@@ -4,13 +4,18 @@ import { QUIZ_QUESTIONS } from '../constants/assessments';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DashboardStackParamList } from '../types/navigation.types';
+import { useDispatch } from 'react-redux';
+import { postQuiz } from '../store/actions/homeAction';
 
 export const useQuiz = () => {
+    const dispatch = useDispatch();
     const navigation = useNavigation<NativeStackNavigationProp<DashboardStackParamList>>();
     const [currentIndex, setCurrentIndex] = useState(0);
     // track answers by question ID (0: No/Never, 1: Sometimes, 2: Yes/Frequently)
     const [answers, setAnswers] = useState<Record<number, number>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     const question = QUIZ_QUESTIONS[currentIndex];
     const isLastQuestion = currentIndex === QUIZ_QUESTIONS.length - 1;
@@ -44,8 +49,10 @@ export const useQuiz = () => {
             // console.log('Final Dictionary for API:', JSON.stringify(formattedAnswers, null, 2));
 
             const result = await assessmentApi.submitQuiz(formattedAnswers);
+            console.log(result);
             // We use replace so user can't go back into the quiz state
-            navigation.replace('Result', { assessmentType: 'quiz', result });
+            dispatch(postQuiz(result, setLoading, navigation));
+
         } catch (error) {
             console.error(error);
             // TODO: Handle error UI

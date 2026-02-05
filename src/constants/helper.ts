@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Alert } from 'react-native';
 
 // export const baseURL = 'https://api.togaapp.in';
-export const baseURL = "http://100.120.13.18:8000/api/v1";
+export const baseURL = "http://192.168.1.43:8000/api/v1";
 
 
 

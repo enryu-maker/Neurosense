@@ -11,11 +11,15 @@ import { spacing } from '../../../constants/spacing';
 import { typography } from '../../../constants/typography';
 import { assessmentApi } from '../../../api/assessment.mock';
 import { mockDelay } from '../../../services/mockDelay.service';
+import { useDispatch } from 'react-redux';
+import { postMriAnalysis } from '../../../store/actions/homeAction';
 
 type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
 export const BrainMRIUploadScreen = () => {
+    const dispatch = useDispatch();
     const navigation = useNavigation<NavigationProp>();
+    const [loading, setLoading] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,8 +51,14 @@ export const BrainMRIUploadScreen = () => {
         if (!imageUri) return;
         setIsSubmitting(true);
         try {
-            const result = await assessmentApi.submitMRI(imageUri);
-            navigation.replace('Result', { assessmentType: 'mri', result });
+            const formData = new FormData();
+            formData.append('image', {
+                uri: imageUri,
+                name: 'mri.jpg',
+                type: 'image/jpeg',
+            } as any);
+
+            dispatch(postMriAnalysis(formData, setLoading, navigation));
         } catch (e) {
             Alert.alert('Error', 'Submission failed');
         } finally {

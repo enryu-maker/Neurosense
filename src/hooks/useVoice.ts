@@ -6,9 +6,13 @@ import { assessmentApi } from '../api/assessment.mock';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DashboardStackParamList } from '../types/navigation.types';
+import { useDispatch } from 'react-redux';
+import { postVoiceAnalysis } from '../store/actions/homeAction';
 
 export const useVoice = () => {
     const navigation = useNavigation<NativeStackNavigationProp<DashboardStackParamList>>();
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [duration, setDuration] = useState(0);
     const [audioUri, setAudioUri] = useState<string | null>(null);
@@ -64,8 +68,13 @@ export const useVoice = () => {
         if (!audioUri) return;
         setIsSubmitting(true);
         try {
-            const result = await assessmentApi.submitVoice(audioUri);
-            navigation.replace('Result', { assessmentType: 'voice', result });
+            const formData = new FormData();
+            formData.append('audio', {
+                uri: audioUri,
+                name: 'voice.wav',
+                type: 'audio/wav',
+            } as any);
+            dispatch(postVoiceAnalysis(formData, setLoading, navigation))
         } catch (error) {
             console.error(error);
         } finally {

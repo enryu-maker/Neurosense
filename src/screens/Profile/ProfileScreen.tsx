@@ -16,6 +16,8 @@ import {
     PenLine,
     ChevronRight,
 } from 'lucide-react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProfile } from '../../store/actions/homeAction';
 
 const MenuItem = ({ icon, label, rightIcon }: { icon: React.ReactNode, label: string, rightIcon?: React.ReactNode }) => (
     <TouchableOpacity style={styles.menuItem}>
@@ -30,9 +32,15 @@ const MenuItem = ({ icon, label, rightIcon }: { icon: React.ReactNode, label: st
 );
 
 export const ProfileScreen = () => {
+    const dispatch = useDispatch();
+    const profile = useSelector((state: any) => state.reducer.profile);
     const { user, logout, updateUser } = useAuth();
     const [name, setName] = useState(user?.name || 'Alex Johnson');
     const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        dispatch(getProfile(setLoading));
+    }, []);
 
     const handleLogout = () => {
         logout();
@@ -65,8 +73,8 @@ export const ProfileScreen = () => {
 
                 {/* User Info (No Photo as requested) */}
                 <View style={styles.userInfo}>
-                    <Text style={styles.userName}>{name}</Text>
-                    <Text style={styles.userId}>User ID</Text>
+                    <Text style={styles.userName}>{profile?.username}</Text>
+                    <Text style={styles.userId}>{profile?.email}</Text>
                 </View>
 
                 {/* Clinical Trust */}

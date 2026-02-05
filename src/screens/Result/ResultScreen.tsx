@@ -24,6 +24,8 @@ type Props = NativeStackScreenProps<DashboardStackParamList, 'Result'>;
 export const ResultScreen = ({ route, navigation }: Props) => {
     const { result, assessmentType } = route.params;
 
+    console.log("result", result);
+
     const handleClose = () => {
         navigation.popToTop();
     };
@@ -37,7 +39,7 @@ export const ResultScreen = ({ route, navigation }: Props) => {
             {/* <TouchableOpacity onPress={handleClose}>
                 <X size={24} color={colors.text} />
             </TouchableOpacity> */}
-            <Text style={styles.headerTitle}>Quiz Results</Text>
+            <Text style={styles.headerTitle}>{assessmentType} Results</Text>
             <TouchableOpacity>
                 <HelpCircle size={24} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -73,23 +75,37 @@ export const ResultScreen = ({ route, navigation }: Props) => {
                     <View style={styles.statusContent}>
                         <Text style={styles.statusLabel}>HEALTH STATUS</Text>
                         <View style={styles.statusRow}>
-                            <View style={styles.statusIndicator} />
-                            <Text style={styles.statusValue}>Stable / Low Risk</Text>
+                            <Text style={styles.statusValue}>{result?.
+                                predicted_stage || result?.result}</Text>
                         </View>
-                        <Text style={styles.statusTime}>Last assessment: Today, 10:45 AM</Text>
-                    </View>
-                    <View style={styles.checkCircleContainer}>
-                        <CheckCircle2 size={40} color={colors.white} strokeWidth={3} />
+                        <Text style={styles.statusTime}>Last assessment: {new Date(result?.created_at).toLocaleString()}</Text>
                     </View>
                 </View>
 
+
                 {/* AI Insight Box */}
-                {/* <View style={styles.insightBox}>
-                    <Text style={styles.insightText}>
-                        <Text style={styles.insightPrefix}>AI Insight: </Text>
-                        Your responses suggest your symptoms have been consistent with your baseline. No urgent changes were detected in your motor patterns or sleep quality compared to last month.
-                    </Text>
-                </View> */}
+                {
+                    assessmentType === "quiz" && (
+                        <>
+                            <View style={styles.insightBox}>
+                                <Text style={styles.statusLabel}>HEALTH STATUS</Text>
+                                <Text style={styles.insightText}>
+                                    <Text style={styles.insightPrefix}>Stage Description: </Text>
+                                    {result?.stage_description}
+                                </Text>
+                            </View>
+
+                            <View style={styles.insightBox}>
+                                <Text style={styles.statusLabel}>NEXT STEPS</Text>
+                                {result?.next_steps_advice?.map((item: any, index: number) => (
+                                    <Text key={index} style={styles.insightPrefix}>
+                                        {index + 1}. <Text style={styles.insightPrefix}>{item}</Text>
+                                    </Text>
+                                ))}
+                            </View>
+                        </>
+                    )
+                }
 
                 {/* Response Breakdown */}
                 {/* <Text style={styles.sectionHeader}>RESPONSE BREAKDOWN</Text> */}
@@ -131,21 +147,15 @@ export const ResultScreen = ({ route, navigation }: Props) => {
             </ScrollView>
 
             {/* Footer */}
-            <View style={styles.footer}>
+            {/* <View style={styles.footer}>
                 <Button
-                    title="Save to History"
-                    onPress={handleViewHistory}
+                    title="Done"
+                    onPress={() => (navigation as any).navigate('Home')}
                     icon={<Save size={20} color={colors.white} />}
                     variant="primary"
                     style={{ marginBottom: 12 }}
                 />
-                <Button
-                    title="Share with Doctor"
-                    onPress={() => { }}
-                    variant="outline"
-                    icon={<Share2 size={20} color={colors.primary} />}
-                />
-            </View>
+            </View> */}
         </SafeAreaView>
     );
 };
@@ -217,7 +227,6 @@ const styles = StyleSheet.create({
     statusValue: {
         fontSize: 18,
         fontWeight: '700',
-        color: colors.success,
     },
     statusTime: {
         fontSize: 13,

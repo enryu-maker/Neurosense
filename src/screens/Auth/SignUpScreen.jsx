@@ -17,6 +17,7 @@ export const SignUpScreen = () => {
 
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export const SignUpScreen = () => {
             return;
         }
         try {
-            dispatch(RegisterAction({ username, password }, setLoading, navigation));
+            dispatch(RegisterAction({ username, email, password }, setLoading, navigation));
         } catch (e) {
             console.log(e);
             Alert.alert('Registration Failed', 'Could not create account');
@@ -69,7 +70,14 @@ export const SignUpScreen = () => {
                                 placeholder="Enter your username"
                                 containerStyle={styles.inputContainer}
                             />
-
+                            <Input
+                                label="Email"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                placeholder="Enter your email"
+                                containerStyle={styles.inputContainer}
+                            />
                             <View>
                                 <Input
                                     label="Password"

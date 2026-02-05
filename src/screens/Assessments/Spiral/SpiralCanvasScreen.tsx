@@ -108,7 +108,7 @@ export const SpiralCanvasScreen = () => {
                             onPress={clear}
                             disabled={!hasDrawing || isSubmitting}
                             style={styles.clearButton}
-                            textStyle={{ 
+                            textStyle={{
                                 color: colors.textSecondary,
                                 includeFontPadding: false,
                                 textAlignVertical: 'center',

@@ -18,6 +18,8 @@ import {
     TrendingUp,
     Activity
 } from 'lucide-react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { getHistory } from '../../store/actions/homeAction';
 
 type NavigationProp = NativeStackNavigationProp<HistoryStackParamList>;
 
@@ -60,8 +62,9 @@ const getStatusBadge = (riskLevel: string) => {
 };
 
 export const HistoryListScreen = () => {
+    const dispatch = useDispatch();
+    const history = useSelector((state: any) => state.reducer.history);
     const navigation = useNavigation<NavigationProp>();
-    const [history, setHistory] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -70,8 +73,7 @@ export const HistoryListScreen = () => {
 
     const loadHistory = async () => {
         try {
-            const data = await historyApi.getHistory();
-            setHistory(data);
+            dispatch(getHistory(setLoading));
         } catch (e) {
             console.error(e);
         } finally {
@@ -97,15 +99,14 @@ export const HistoryListScreen = () => {
                     {/* Badge & Date Row */}
                     <View style={styles.metaRow}>
                         <View style={[styles.badge, { backgroundColor }]}>
-                            <Text style={[styles.badgeText, { color }]}>{text}</Text>
+                            <Text style={[styles.badgeText, { color }]}>{item?.type}</Text>
                         </View>
                         <Text style={styles.date}>{formatDate(item.date)}</Text>
                     </View>
 
                     {/* Title & Arrow Row */}
                     <View style={styles.titleRow}>
-                        <Text style={styles.itemTitle}>{label}</Text>
-                        <ChevronRight size={20} color="#94A3B8" />
+                        <Text style={styles.itemTitle}>{item?.result}</Text>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -124,7 +125,7 @@ export const HistoryListScreen = () => {
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
                     <UserAvatar />
-                    <Text style={styles.headerTitle}>Test History</Text>
+                    <Text style={styles.headerTitle}>User History</Text>
                 </View>
                 {/* <TouchableOpacity style={styles.searchButton}>
                     <Search size={24} color="#0F172A" />
