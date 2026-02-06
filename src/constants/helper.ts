@@ -15,16 +15,19 @@ const axiosIns = axios.create({
 
 axiosIns.interceptors.request.use(
     async (config) => {
-        const token = await AsyncStorage.getItem('access')
+        // 1. Check for custom base URL, otherwise use default
+        const savedBaseURL = await AsyncStorage.getItem('custom_base_url');
+        config.baseURL = savedBaseURL || baseURL;
+
+        // 2. Add Token
+        const token = await AsyncStorage.getItem('access');
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`
+            config.headers.Authorization = `Bearer ${token}`;
         }
-        return config
+        return config;
     },
-    (error) => {
-        return Promise.reject(error.msg)
-    }
-)
+    (error) => Promise.reject(error)
+);
 
 axiosIns.interceptors.response.use(
     (response) =>

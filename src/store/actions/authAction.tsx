@@ -26,7 +26,7 @@ export const LoginAction = (data: any, setLoading: any, navigate: any) => {
     setLoading(true);
     return async (dispatch: any) => {
         try {
-            await axios.post(baseURL + '/token/', data)
+            await axiosIns.post('/token/', data)
                 .then(async (res) => {
                     ToastAndroid.show("Login successful", ToastAndroid.LONG);
 
@@ -55,7 +55,7 @@ export const RegisterAction = (data: any, setLoading: any, navigate: any) => {
     setLoading(true);
     return async (dispatch: any) => {
         try {
-            await axios.post(baseURL + '/register/', data)
+            await axiosIns.post('/register/', data)
                 .then(async (res) => {
                     ToastAndroid.show("User registered successfully", ToastAndroid.LONG);
                     setLoading(false);
