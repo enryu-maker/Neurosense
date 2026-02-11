@@ -29,7 +29,7 @@ export const SpiralInstructions = () => {
 
             <View style={styles.footer}>
                 <Button
-                    title="Start Drawing"
+                    title="Click to Start"
                     onPress={() => navigation.replace('SpiralCanvas')}
                 />
             </View>

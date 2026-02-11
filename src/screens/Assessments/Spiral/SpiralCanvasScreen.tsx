@@ -1,60 +1,60 @@
-import React from 'react';
-import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import ViewShot from 'react-native-view-shot';
-import { useRef } from 'react';
+import { launchCamera } from 'react-native-image-picker'; // Added this
 import {
     ArrowLeft,
     HelpCircle,
-    RotateCcw, // For Undo/Reset
-    Circle // For Recording Badge
+    Camera,
+    FileText
 } from 'lucide-react-native';
 
 import { useSpiral } from '../../../hooks/useSpiral';
-import { SpiralCanvas } from '../../../modules/spiral/SpiralCanvas';
 import { Button } from '../../../components/Button';
 import { colors } from '../../../constants/colors';
 import { spacing } from '../../../constants/spacing';
-import { typography } from '../../../constants/typography';
 
 export const SpiralCanvasScreen = () => {
     const navigation = useNavigation();
-    const {
-        points,
-        startDrawing,
-        addPoint,
-        stopDrawing,
-        clear,
-        submit,
-        isSubmitting,
-        hasDrawing
-    } = useSpiral();
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-    const { width } = useWindowDimensions();
-    // Slightly smaller canvas to fit padding and border
-    const canvasSize = width - spacing.xl * 2;
-    const viewShotRef = useRef<ViewShot>(null);
+    const { submit, isSubmitting } = useSpiral();
+
+    const handleCameraCapture = async () => {
+        const options = {
+            mediaType: 'photo' as const,
+            quality: 0.8,
+            saveToPhotos: false, // Set to true if you want to keep a copy in the gallery
+            cameraType: 'back' as const,
+        };
+
+        launchCamera(options, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled camera');
+            } else if (response.errorCode) {
+                Alert.alert('Camera Error', response.errorMessage);
+            } else if (response.assets && response.assets.length > 0) {
+                // Get the URI of the photo taken
+                const uri = response.assets[0].uri;
+                if (uri) setCapturedImage(uri);
+            }
+        });
+    };
 
     const handleSubmit = async () => {
-        if (viewShotRef.current) {
-            try {
-                const uri = await viewShotRef.current?.capture();
-                if (uri) {
-                    await submit(uri);
-                }
-            } catch (error) {
-                console.error("Failed to capture spiral", error);
-            }
+        if (capturedImage) {
+            await submit(capturedImage);
         }
     };
 
+    // ... renderHeader remains the same ...
     const renderHeader = () => (
         <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                 <ArrowLeft size={24} color={colors.text} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>ASSESSMENT</Text>
+            <Text style={styles.headerTitle}>SPIRAL TEST</Text>
             <TouchableOpacity>
                 <HelpCircle size={24} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -66,172 +66,86 @@ export const SpiralCanvasScreen = () => {
             {renderHeader()}
 
             <View style={styles.contentContainer}>
-
                 <View style={styles.instructionsContainer}>
-                    <Text style={styles.title}>Trace the spiral as accurately as you can</Text>
+                    <Text style={styles.title}>Upload Physical Drawing</Text>
                     <Text style={styles.subtitle}>
-                        Rest your arm on a flat surface. Start from the center and follow the line outward.
+                        Please draw the spiral on a blank white sheet of paper using a dark pen.
                     </Text>
                 </View>
 
-                {/* Canvas Container with Dashed Border */}
-                <View style={[styles.canvasContainer, { width: canvasSize + 4, height: canvasSize + 4 }]}>
-                    <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
-                        <SpiralCanvas
-                            width={canvasSize}
-                            height={canvasSize}
-                            points={points}
-                            onStart={startDrawing}
-                            onMove={addPoint}
-                            onEnd={stopDrawing}
-                        />
-                    </ViewShot>
-
-                    {/* Recording Badge Overlay Removed per user request */}
+                {/* Image Placeholder / Preview Area */}
+                <View style={styles.previewContainer}>
+                    {capturedImage ? (
+                        <Image source={{ uri: capturedImage }} style={styles.previewImage} />
+                    ) : (
+                        <View style={styles.placeholderBox}>
+                            <FileText size={48} color="#CBD5E1" strokeWidth={1.5} />
+                            <Text style={styles.placeholderText}>No photo captured yet</Text>
+                        </View>
+                    )}
                 </View>
 
-                {/* Footer Controls */}
+                {/* Requirements List */}
+                <View style={styles.requirementsBox}>
+                    <Text style={styles.requirementsTitle}>For best results:</Text>
+                    <Text style={styles.requirementItem}>• Use plain white A4 paper</Text>
+                    <Text style={styles.requirementItem}>• Use a black or dark blue pen</Text>
+                    <Text style={styles.requirementItem}>• Ensure the area is well-lit</Text>
+                </View>
+
                 <View style={styles.footer}>
-                    <Button
-                        title="Submit Analysis"
-                        onPress={handleSubmit}
-                        disabled={!hasDrawing}
-                        loading={isSubmitting}
-                        variant="primary"
-                        style={styles.submitButton}
-                    />
-
-                    <View style={styles.secondaryControls}>
+                    {!capturedImage ? (
                         <Button
-                            title="Clear"
-                            variant="outline"
-                            onPress={clear}
-                            disabled={!hasDrawing || isSubmitting}
-                            style={styles.clearButton}
-                            textStyle={{
-                                color: colors.textSecondary,
-                                includeFontPadding: false,
-                                textAlignVertical: 'center',
-                            }}
+                            title="Take Photo"
+                            onPress={handleCameraCapture}
+                            variant="primary"
+                            icon={<Camera size={20} color={colors.white} />}
+                            style={styles.mainButton}
                         />
-
-                        {/* <TouchableOpacity
-                            style={[styles.iconButton, (!hasDrawing || isSubmitting) && styles.iconButtonDisabled]}
-                            onPress={clear} // Usually Undo, but for now acting as clear/reset
-                            disabled={!hasDrawing || isSubmitting}
-                        >
-                            <RotateCcw size={20} color={colors.textSecondary} />
-                        </TouchableOpacity> */}
-                    </View>
-
+                    ) : (
+                        <View style={styles.actionRow}>
+                            <Button
+                                title="Retake"
+                                onPress={() => setCapturedImage(null)}
+                                variant="outline"
+                                style={styles.flexButton}
+                            />
+                            <Button
+                                title="Submit Analysis"
+                                onPress={handleSubmit}
+                                loading={isSubmitting}
+                                variant="primary"
+                                style={styles.flexButton}
+                            />
+                        </View>
+                    )}
                     <Text style={styles.calibrationText}>CALIBRATED FOR CLINICAL TREMOR MONITORING V4.2</Text>
                 </View>
-
             </View>
         </SafeAreaView>
     );
 };
 
+// ... styles remain the same ...
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: colors.background,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: spacing.m,
-        paddingVertical: spacing.s,
-    },
-    backButton: {
-        padding: 4,
-    },
-    headerTitle: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: '#94A3B8', // Grey caps
-        letterSpacing: 1,
-    },
-    contentContainer: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: spacing.l,
-    },
-    instructionsContainer: {
-        marginTop: spacing.xl,
-        marginBottom: spacing.xxl,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: '700',
-        color: '#0F172A',
-        textAlign: 'center',
-        marginBottom: 8,
-        lineHeight: 28,
-    },
-    subtitle: {
-        fontSize: 14,
-        color: '#64748B', // Slate
-        textAlign: 'center',
-        lineHeight: 20,
-        paddingHorizontal: spacing.s,
-    },
-    canvasContainer: {
-        borderWidth: 2,
-        borderColor: '#E2E8F0',
-        borderStyle: 'dashed',
-        borderRadius: 16,
-        padding: 2, // Gap for dashed border
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F8FAFC', // Very light background for canvas area
-        position: 'relative',
-    },
-    footer: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'flex-end',
-        paddingBottom: spacing.l,
-        gap: 16,
-    },
-    submitButton: {
-        width: '100%',
-        borderRadius: 8, // Square-ish look per design
-        height: 48,
-    },
-    secondaryControls: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    clearButton: {
-        flex: 1,
-        borderRadius: 8,
-        height: 48,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
-    iconButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.white,
-    },
-    iconButtonDisabled: {
-        opacity: 0.5,
-        backgroundColor: '#F1F5F9',
-    },
-    calibrationText: {
-        textAlign: 'center',
-        fontSize: 10,
-        color: '#94A3B8',
-        fontWeight: '600',
-        letterSpacing: 0.5,
-        marginTop: 8,
-    },
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.m, paddingVertical: spacing.s },
+    headerTitle: { fontSize: 12, fontWeight: '700', color: '#94A3B8', letterSpacing: 1 },
+    backButton: { padding: 4 },
+    contentContainer: { flex: 1, paddingHorizontal: spacing.l, alignItems: 'center' },
+    instructionsContainer: { marginTop: spacing.xl, marginBottom: spacing.l, alignItems: 'center' },
+    title: { fontSize: 22, fontWeight: '700', color: '#0F172A', textAlign: 'center', marginBottom: 8 },
+    subtitle: { fontSize: 14, color: '#64748B', textAlign: 'center', lineHeight: 20 },
+    previewContainer: { width: '100%', aspectRatio: 1, backgroundColor: '#F8FAFC', borderRadius: 16, borderWidth: 2, borderColor: '#E2E8F0', borderStyle: 'dashed', overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
+    previewImage: { width: '100%', height: '100%', resizeMode: 'contain' }, // Changed to contain to see full paper
+    placeholderBox: { alignItems: 'center', gap: 12 },
+    placeholderText: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
+    requirementsBox: { width: '100%', marginTop: spacing.l, padding: spacing.m, backgroundColor: '#F1F5F9', borderRadius: 12 },
+    requirementsTitle: { fontSize: 14, fontWeight: '700', color: '#475569', marginBottom: 4 },
+    requirementItem: { fontSize: 13, color: '#64748B', lineHeight: 20 },
+    footer: { flex: 1, width: '100%', justifyContent: 'flex-end', paddingBottom: spacing.l },
+    mainButton: { height: 56, borderRadius: 12 },
+    actionRow: { flexDirection: 'row', gap: 12 },
+    flexButton: { flex: 1, height: 56, borderRadius: 12 },
+    calibrationText: { textAlign: 'center', fontSize: 10, color: '#94A3B8', fontWeight: '600', marginTop: 16 },
 });

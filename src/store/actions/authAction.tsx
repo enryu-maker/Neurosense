@@ -39,7 +39,7 @@ export const LoginAction = (data: any, setLoading: any, navigate: any) => {
                     setLoading(false);
                 })
                 .catch((err) => {
-                    console.log(err?.response);
+                    console.log(err);
                     ToastAndroid.show(err?.response?.data?.message || "Something went wrong!", ToastAndroid.LONG);
                     setLoading(false);
                 });

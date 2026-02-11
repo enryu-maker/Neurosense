@@ -45,7 +45,7 @@ export const LoginScreen = () => {
             if (savedUrl) {
                 setTempBaseUrl(savedUrl);
             } else {
-                setTempBaseUrl("http://192.168.1.43:8000/api/v1"); // Default
+                setTempBaseUrl("http://192.168.1.23:8000/api/v1"); // Default
             }
         };
         loadSavedUrl();

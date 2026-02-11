@@ -4,6 +4,7 @@ import { ToastAndroid } from "react-native";
 
 
 export const postQuiz = (data: any, setLoading: any, navigate: any) => {
+    console.log("data", data);
     return async (dispatch: any) => {
         try {
             await axiosIns.post('/assessments/quiz/', data)

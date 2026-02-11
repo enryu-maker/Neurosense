@@ -39,19 +39,12 @@ export const useQuiz = () => {
     const submit = async () => {
         setIsSubmitting(true);
         try {
-            // Transform answers to required format: { "q1": 0, "q2": 1, ... }
             const formattedAnswers: Record<string, number> = {};
             Object.keys(answers).forEach((key) => {
                 const qKey = `q${key}`;
                 formattedAnswers[qKey] = answers[Number(key)];
             });
-
-            // console.log('Final Dictionary for API:', JSON.stringify(formattedAnswers, null, 2));
-
-            const result = await assessmentApi.submitQuiz(formattedAnswers);
-            console.log(result);
-            // We use replace so user can't go back into the quiz state
-            dispatch(postQuiz(result, setLoading, navigation));
+            dispatch(postQuiz(formattedAnswers, setLoading, navigation));
 
         } catch (error) {
             console.error(error);
