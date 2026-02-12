@@ -94,7 +94,7 @@ export const postVoiceAnalysis = (data: any, setLoading: any, navigate: any) => 
             );
 
             navigate.replace('Result', {
-                assessmentType: 'spiral',
+                assessmentType: 'voice',
                 result: res.data,
             });
 

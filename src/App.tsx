@@ -9,10 +9,8 @@ const App = (): React.JSX.Element => {
     return (
         <SafeAreaProvider>
             <Provider store={store}>
-                <SafeAreaView style={{ flex: 1 }}>
-                    <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-                    <RootNavigator />
-                </SafeAreaView>
+                <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+                <RootNavigator />
             </Provider>
         </SafeAreaProvider>
     );

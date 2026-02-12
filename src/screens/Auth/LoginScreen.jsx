@@ -11,7 +11,7 @@ import {
     Modal,
     TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Brain, Eye, EyeOff, ArrowRight, ShieldCheck, Settings, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -74,139 +74,141 @@ export const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Background Decorative Circle */}
-            <View style={styles.bgCircle} />
+        <SafeAreaView style={{ flex: 1 }}>
+            <View style={styles.container}>
+                {/* Background Decorative Circle */}
+                <View style={styles.bgCircle} />
 
-            <SafeAreaView style={styles.safeArea}>
-                {/* SETTINGS GEAR ICON */}
-                <TouchableOpacity
-                    style={styles.settingsIcon}
-                    onPress={() => setSettingsVisible(true)}
-                >
-                    <Settings size={24} color={colors.textSecondary} />
-                </TouchableOpacity>
+                <SafeAreaView style={styles.safeArea}>
+                    {/* SETTINGS GEAR ICON */}
+                    <TouchableOpacity
+                        style={styles.settingsIcon}
+                        onPress={() => setSettingsVisible(true)}
+                    >
+                        <Settings size={24} color={colors.textSecondary} />
+                    </TouchableOpacity>
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{ flex: 1 }}
-                >
-                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <View style={styles.logoContainer}>
-                                <Brain size={32} color={colors.primary} />
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        style={{ flex: 1 }}
+                    >
+                        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                            {/* Header */}
+                            <View style={styles.header}>
+                                <View style={styles.logoContainer}>
+                                    <Brain size={32} color={colors.primary} />
+                                </View>
+                                <Text style={styles.title}>Welcome Back</Text>
+                                <Text style={styles.subtitle}>Sign in to continue your monitoring.</Text>
                             </View>
-                            <Text style={styles.title}>Welcome Back</Text>
-                            <Text style={styles.subtitle}>Sign in to continue your monitoring.</Text>
-                        </View>
 
-                        {/* Form */}
-                        <View style={styles.form}>
-                            <Input
-                                label="Username"
-                                value={username}
-                                onChangeText={setUsername}
-                                autoCapitalize="none"
-                                placeholder="Enter your username"
-                                containerStyle={styles.inputContainer}
-                            />
-
-                            <View style={{ position: 'relative' }}>
+                            {/* Form */}
+                            <View style={styles.form}>
                                 <Input
-                                    label="Password"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                    placeholder="Enter your password"
+                                    label="Username"
+                                    value={username}
+                                    onChangeText={setUsername}
+                                    autoCapitalize="none"
+                                    placeholder="Enter your username"
                                     containerStyle={styles.inputContainer}
                                 />
-                                <TouchableOpacity
-                                    style={styles.eyeIcon}
-                                    onPress={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff size={20} color={colors.textSecondary} />
-                                    ) : (
-                                        <Eye size={20} color={colors.textSecondary} />
-                                    )}
+
+                                <View style={{ position: 'relative' }}>
+                                    <Input
+                                        label="Password"
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry={!showPassword}
+                                        placeholder="Enter your password"
+                                        containerStyle={styles.inputContainer}
+                                    />
+                                    <TouchableOpacity
+                                        style={styles.eyeIcon}
+                                        onPress={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff size={20} color={colors.textSecondary} />
+                                        ) : (
+                                            <Eye size={20} color={colors.textSecondary} />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+
+                                <TouchableOpacity style={styles.forgotPassword}>
+                                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                                </TouchableOpacity>
+
+                                <Button
+                                    title="Log In"
+                                    onPress={handleLogin}
+                                    loading={loading}
+                                    icon={<ArrowRight size={20} color={colors.white} />}
+                                    style={styles.loginButton}
+                                    textStyle={{ fontSize: 16, fontWeight: '700' }}
+                                />
+
+                                <TouchableOpacity style={styles.signUpContainer} onPress={() => navigation.navigate('SignUp')}>
+                                    <Text style={styles.signUpText}>
+                                        New to Neurosense? <Text style={styles.signUpLink}>Create Account</Text>
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity style={styles.forgotPassword}>
-                                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-                            </TouchableOpacity>
+                            {/* Footer */}
+                            <View style={styles.footer}>
+                                <ShieldCheck size={14} color={colors.textSecondary} style={{ marginRight: 6 }} />
+                                <Text style={styles.securityText}>CLINICAL GRADE ENCRYPTION</Text>
+                            </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
 
-                            <Button
-                                title="Log In"
-                                onPress={handleLogin}
-                                loading={loading}
-                                icon={<ArrowRight size={20} color={colors.white} />}
-                                style={styles.loginButton}
-                                textStyle={{ fontSize: 16, fontWeight: '700' }}
+                {/* SETTINGS DIALOG (MODAL) */}
+                <Modal
+                    visible={isSettingsVisible}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => setSettingsVisible(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>Server Settings</Text>
+                                <TouchableOpacity onPress={() => setSettingsVisible(false)}>
+                                    <X size={20} color={colors.textSecondary} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <Text style={styles.modalLabel}>API Base URL</Text>
+                            <TextInput
+                                style={styles.modalInput}
+                                value={tempBaseUrl}
+                                onChangeText={setTempBaseUrl}
+                                placeholder="https://api.yoursite.com"
+                                autoCapitalize="none"
+                                autoCorrect={false}
                             />
 
-                            <TouchableOpacity style={styles.signUpContainer} onPress={() => navigation.navigate('SignUp')}>
-                                <Text style={styles.signUpText}>
-                                    New to Neurosense? <Text style={styles.signUpLink}>Create Account</Text>
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Footer */}
-                        <View style={styles.footer}>
-                            <ShieldCheck size={14} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                            <Text style={styles.securityText}>CLINICAL GRADE ENCRYPTION</Text>
-                        </View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-
-            {/* SETTINGS DIALOG (MODAL) */}
-            <Modal
-                visible={isSettingsVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setSettingsVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Server Settings</Text>
-                            <TouchableOpacity onPress={() => setSettingsVisible(false)}>
-                                <X size={20} color={colors.textSecondary} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <Text style={styles.modalLabel}>API Base URL</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            value={tempBaseUrl}
-                            onChangeText={setTempBaseUrl}
-                            placeholder="https://api.yoursite.com"
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalBtn, styles.cancelBtn]}
-                                onPress={() => setSettingsVisible(false)}
-                            >
-                                <Text style={styles.cancelBtnText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalBtn, styles.saveBtn]}
-                                onPress={handleSaveSettings}
-                            >
-                                <Text style={styles.saveBtnText}>Save Configuration</Text>
-                            </TouchableOpacity>
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.cancelBtn]}
+                                    onPress={() => setSettingsVisible(false)}
+                                >
+                                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.saveBtn]}
+                                    onPress={handleSaveSettings}
+                                >
+                                    <Text style={styles.saveBtnText}>Save Configuration</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
-    );
+                </Modal>
+            </View>
+        </SafeAreaView>
+            );
 };
 
 const styles = StyleSheet.create({

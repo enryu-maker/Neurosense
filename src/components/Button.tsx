@@ -29,12 +29,14 @@ export const Button: React.FC<ButtonProps> = ({
         if (disabled) return colors.border;
         if (variant === 'primary') return colors.primary;
         if (variant === 'secondary') return colors.secondary;
+        if (variant === 'outline') return colors.card2;
         return 'transparent';
     };
 
     const getTextColor = () => {
         if (disabled) return colors.textSecondary;
         if (variant === 'outline') return colors.primary;
+        // Primary and Secondary should both interpret as "filled" buttons usually requiring light text
         return colors.white;
     };
 

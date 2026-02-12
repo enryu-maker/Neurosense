@@ -54,12 +54,12 @@ export const AppNavigator = () => {
             <Tab.Screen
                 name="DashboardTab"
                 component={DashboardStack}
-                options={{ title: 'Progress' }}
+                options={{ title: 'Assessment' }}
             />
             <Tab.Screen
                 name="HistoryTab"
                 component={HistoryStack}
-                options={{ title: 'Insights' }}
+                options={{ title: 'History' }}
             />
             <Tab.Screen
                 name="ProfileTab"

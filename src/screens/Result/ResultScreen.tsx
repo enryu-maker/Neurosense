@@ -16,8 +16,12 @@ import {
     Moon,
     PenTool,
     Save,
-    Share2
+    Share2,
+    FileDown
 } from 'lucide-react-native';
+import { generateAssessmentPDF } from '../../services/pdf.service';
+import Share from 'react-native-share';
+import { Alert, Platform } from 'react-native';
 
 type Props = NativeStackScreenProps<DashboardStackParamList, 'Result'>;
 
@@ -32,6 +36,28 @@ export const ResultScreen = ({ route, navigation }: Props) => {
 
     const handleViewHistory = () => {
         (navigation as any).navigate('HistoryTab');
+    };
+
+    const handleDownloadPDF = async () => {
+        try {
+            const filePath = await generateAssessmentPDF(result, assessmentType);
+            if (!filePath) {
+                Alert.alert('Error', 'Failed to generate PDF report.');
+                return;
+            }
+
+            const shareOptions = {
+                title: 'Neurosense Assessment Report',
+                url: Platform.OS === 'android' ? `file://${filePath}` : filePath,
+                type: 'application/pdf',
+                failOnCancel: false,
+            };
+
+            await Share.open(shareOptions);
+        } catch (error) {
+            console.error('Share Error:', error);
+            // Ignore user cancel errors
+        }
     };
 
     const renderHeader = () => (
@@ -147,15 +173,22 @@ export const ResultScreen = ({ route, navigation }: Props) => {
             </ScrollView>
 
             {/* Footer */}
-            {/* <View style={styles.footer}>
-                <Button
+            <View style={styles.footer}>
+                {/* <Button
                     title="Done"
                     onPress={() => (navigation as any).navigate('Home')}
                     icon={<Save size={20} color={colors.white} />}
                     variant="primary"
                     style={{ marginBottom: 12 }}
+                /> */}
+
+                <Button
+                    title="Download Report"
+                    onPress={handleDownloadPDF}
+                    icon={<FileDown size={20} color={colors.primary} />}
+                    variant="outline"
                 />
-            </View> */}
+            </View>
         </SafeAreaView>
     );
 };

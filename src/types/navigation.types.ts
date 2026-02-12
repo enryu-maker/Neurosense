@@ -28,7 +28,7 @@ export type DashboardStackParamList = {
     // BrainMRI
     BrainMRIUpload: undefined;
     // Result
-    Result: { assessmentType: 'quiz' | 'spiral' | 'voice' | 'mri'; result: any };
+    Result: { assessmentType: 'quiz' | 'spiral' | 'voice' | 'brain'; result: any };
 };
 
 export type HistoryStackParamList = {

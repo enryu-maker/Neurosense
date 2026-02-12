@@ -25,6 +25,7 @@ export const RootNavigator = () => {
                 ) : (
                     <Stack.Screen name="Auth" component={AuthNavigator} />
                 )}
+                {/* <Stack.Screen name="App" component={AppNavigator} /> */}
             </Stack.Navigator>
         </NavigationContainer>
     );

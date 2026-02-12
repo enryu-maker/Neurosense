@@ -40,91 +40,93 @@ export const SignUpScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Background Circle */}
-            <View style={styles.bgCircle} />
+        <SafeAreaView style={{ flex: 1 }}>
+            <View style={styles.container}>
+                {/* Background Circle */}
+                <View style={styles.bgCircle} />
 
-            <SafeAreaView style={styles.safeArea}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={{ flex: 1 }}
-                >
-                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <SafeAreaView style={styles.safeArea}>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        style={{ flex: 1 }}
+                    >
+                        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <View style={styles.logoContainer}>
-                                <Brain size={32} color={colors.primary} />
+                            {/* Header */}
+                            <View style={styles.header}>
+                                <View style={styles.logoContainer}>
+                                    <Brain size={32} color={colors.primary} />
+                                </View>
+                                <Text style={styles.title}>Create Account</Text>
+                                <Text style={styles.subtitle}>Start your cognitive health journey.</Text>
                             </View>
-                            <Text style={styles.title}>Create Account</Text>
-                            <Text style={styles.subtitle}>Start your cognitive health journey.</Text>
-                        </View>
 
-                        {/* Form */}
-                        <View style={styles.form}>
-                            <Input
-                                label="Username"
-                                value={username}
-                                onChangeText={setUsername}
-                                autoCapitalize="none"
-                                placeholder="Enter your username"
-                                containerStyle={styles.inputContainer}
-                            />
-                            <Input
-                                label="Email"
-                                value={email}
-                                onChangeText={setEmail}
-                                autoCapitalize="none"
-                                placeholder="Enter your email"
-                                containerStyle={styles.inputContainer}
-                            />
-                            <View>
+                            {/* Form */}
+                            <View style={styles.form}>
                                 <Input
-                                    label="Password"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                    placeholder="Enter your password"
+                                    label="Username"
+                                    value={username}
+                                    onChangeText={setUsername}
+                                    autoCapitalize="none"
+                                    placeholder="Enter your username"
                                     containerStyle={styles.inputContainer}
                                 />
-                                <TouchableOpacity
-                                    style={styles.eyeIcon}
-                                    onPress={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? (
-                                        <EyeOff size={20} color={colors.textSecondary} />
-                                    ) : (
-                                        <Eye size={20} color={colors.textSecondary} />
-                                    )}
+                                <Input
+                                    label="Email"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    placeholder="Enter your email"
+                                    containerStyle={styles.inputContainer}
+                                />
+                                <View>
+                                    <Input
+                                        label="Password"
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry={!showPassword}
+                                        placeholder="Enter your password"
+                                        containerStyle={styles.inputContainer}
+                                    />
+                                    <TouchableOpacity
+                                        style={styles.eyeIcon}
+                                        onPress={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff size={20} color={colors.textSecondary} />
+                                        ) : (
+                                            <Eye size={20} color={colors.textSecondary} />
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Button
+                                    title="Sign Up"
+                                    onPress={handleSignup}
+                                    // loading={isLoading}
+                                    icon={<UserPlus size={20} color={colors.white} />}
+                                    style={styles.signupButton}
+                                    textStyle={{ fontSize: 16, fontWeight: '700' }}
+                                />
+
+                                <TouchableOpacity style={styles.loginContainer} onPress={handleGoToLogin}>
+                                    <Text style={styles.loginText}>
+                                        Already have an account? <Text style={styles.loginLink}>Log In</Text>
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
 
-                            <Button
-                                title="Sign Up"
-                                onPress={handleSignup}
-                                // loading={isLoading}
-                                icon={<UserPlus size={20} color={colors.white} />}
-                                style={styles.signupButton}
-                                textStyle={{ fontSize: 16, fontWeight: '700' }}
-                            />
+                            {/* Footer */}
+                            <View style={styles.footer}>
+                                <ShieldCheck size={14} color={colors.textSecondary} style={{ marginRight: 6 }} />
+                                <Text style={styles.securityText}>CLINICAL GRADE ENCRYPTION</Text>
+                            </View>
 
-                            <TouchableOpacity style={styles.loginContainer} onPress={handleGoToLogin}>
-                                <Text style={styles.loginText}>
-                                    Already have an account? <Text style={styles.loginLink}>Log In</Text>
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Footer */}
-                        <View style={styles.footer}>
-                            <ShieldCheck size={14} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                            <Text style={styles.securityText}>CLINICAL GRADE ENCRYPTION</Text>
-                        </View>
-
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
+            </View>
+        </SafeAreaView>
     );
 };
 

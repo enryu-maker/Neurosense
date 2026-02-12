@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { HistoryProgressGraph } from './HistoryProgressGraph';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -66,10 +67,22 @@ export const HistoryListScreen = () => {
     const history = useSelector((state: any) => state.reducer.history);
     const navigation = useNavigation<NavigationProp>();
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState<'list' | 'progress'>('list');
+    const [graphData, setGraphData] = useState<HistoryItem[]>([]);
 
     useEffect(() => {
         loadHistory();
+        loadGraphData();
     }, []);
+
+    const loadGraphData = async () => {
+        try {
+            const data = await historyApi.getGraphData();
+            setGraphData(data);
+        } catch (e) {
+            console.error("Failed to load graph data", e);
+        }
+    };
 
     const loadHistory = async () => {
         try {
@@ -132,37 +145,72 @@ export const HistoryListScreen = () => {
                 </TouchableOpacity> */}
             </View>
 
-            <FlatList
-                data={history}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
-                refreshing={loading}
-                onRefresh={loadHistory}
-                showsVerticalScrollIndicator={false}
-                ListHeaderComponent={
-                    <>
-                        {/* Insight Card */}
-                        {/* <View style={styles.insightCard}>
-                            <View style={styles.iconContainer}>
-                                <TrendingUp size={24} color={colors.white} />
-                            </View>
-                            <View>
-                                <Text style={styles.insightTitle}>Monthly Trend Stable</Text>
-                                <Text style={styles.insightSubtitle}>
-                                    Motor skills remained within healthy baseline for 3 weeks consecutive.
-                                </Text>
-                            </View>
-                        </View> */}
+            {/* Toggle Switch */}
+            <View style={styles.toggleContainer}>
+                <TouchableOpacity
+                    style={[styles.toggleButton, viewMode === 'list' && styles.toggleButtonActive]}
+                    onPress={() => setViewMode('list')}
+                >
+                    <Text style={[styles.toggleText, viewMode === 'list' && styles.toggleTextActive]}>History</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, viewMode === 'progress' && styles.toggleButtonActive]}
+                    onPress={() => setViewMode('progress')}
+                >
+                    <Text style={[styles.toggleText, viewMode === 'progress' && styles.toggleTextActive]}>Progress</Text>
+                </TouchableOpacity>
+            </View>
 
-                        {/* List Header */}
-                        <View style={styles.sectionHeaderContainer}>
-                            <Text style={styles.sectionTitle}>Your Medical Records</Text>
-                            <Text style={styles.sectionSubtitle}>Condensed overview of your recent tests</Text>
+            {viewMode === 'list' ? (
+                <FlatList
+                    data={history}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContent}
+                    refreshing={loading}
+                    onRefresh={loadHistory}
+                    showsVerticalScrollIndicator={false}
+                    ListHeaderComponent={
+                        <>
+                            {/* List Header */}
+                            <View style={styles.sectionHeaderContainer}>
+                                <Text style={styles.sectionTitle}>Your Medical Records</Text>
+                                <Text style={styles.sectionSubtitle}>Condensed overview of your recent tests</Text>
+                            </View>
+                        </>
+                    }
+                />
+            ) : (
+                <ScrollView style={styles.graphContainer} showsVerticalScrollIndicator={false}>
+                    <HistoryProgressGraph data={graphData} />
+
+                    {/* Recommendations Section */}
+                    <View style={styles.recommendationSection}>
+                        <Text style={styles.sectionTitle}>Recommendations</Text>
+                        <Text style={styles.sectionSubtitle}>Based on your recent activity</Text>
+
+                        <View style={styles.recommendationCard}>
+                            <View style={[styles.iconBox, { backgroundColor: '#E0F2FE' }]}>
+                                <Activity size={24} color="#0284C7" />
+                            </View>
+                            <View style={styles.recommendationText}>
+                                <Text style={styles.recommendationTitle}>Maintain Regular Exercise</Text>
+                                <Text style={styles.recommendationDesc}>Light aerobic exercise helps improve motor skills.</Text>
+                            </View>
                         </View>
-                    </>
-                }
-            />
+
+                        <View style={styles.recommendationCard}>
+                            <View style={[styles.iconBox, { backgroundColor: '#DCFCE7' }]}>
+                                <TrendingUp size={24} color="#16A34A" />
+                            </View>
+                            <View style={styles.recommendationText}>
+                                <Text style={styles.recommendationTitle}>Track Your Progress</Text>
+                                <Text style={styles.recommendationDesc}>Take the quiz weekly to monitor any changes.</Text>
+                            </View>
+                        </View>
+                    </View>
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 };
@@ -304,5 +352,79 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
         color: '#0F172A',
+    },
+    toggleContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#F1F5F9',
+        borderRadius: 12,
+        padding: 4,
+        marginHorizontal: spacing.m,
+        marginBottom: spacing.m,
+    },
+    toggleButton: {
+        flex: 1,
+        paddingVertical: 8,
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    toggleButtonActive: {
+        backgroundColor: colors.white,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 1,
+    },
+    toggleText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#64748B',
+    },
+    toggleTextActive: {
+        color: '#0F172A',
+    },
+    graphContainer: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
+    recommendationSection: {
+        padding: spacing.m,
+        paddingTop: 0,
+        paddingBottom: spacing.xxl,
+    },
+    recommendationCard: {
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    iconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    recommendationText: {
+        flex: 1,
+    },
+    recommendationTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#0F172A',
+        marginBottom: 2,
+    },
+    recommendationDesc: {
+        fontSize: 13,
+        color: '#64748B',
+        lineHeight: 18,
     },
 });
